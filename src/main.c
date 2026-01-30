@@ -5,6 +5,7 @@
 #include "agon/vdp.h"
 #include "agon/mos.h"
 #include "agon/keyboard.h"
+#include "agon/timer.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -20,15 +21,6 @@
 #define PC_DIR 0x009F
 #define PD_DAT 0x00A2
 #define PD_DIR 0x00A3
-
-// BUSY WAIT: Delay a number of clock ticks
-void delay(int timeout)
-{
-	clock_t timeout_ticks = clock()+timeout;
-	do {
-	} while( timeout_ticks > clock() );
-}
-
 
 // MAIN
 int main(/*int argc, char *argv[]*/)
@@ -48,13 +40,13 @@ int main(/*int argc, char *argv[]*/)
 
     while (!bquit)
     {
+        IO(PD_DAT) = state << 7;
+        state = 1 - state;
+        delay(200);
         if (kbuf_poll_event(&e))
         {
             bquit = true;
         }
-        IO(PD_DAT) = state << 7;
-        state = 1 - state;
-        delay(20);
     }
 
     // turn off the LED before exiting
